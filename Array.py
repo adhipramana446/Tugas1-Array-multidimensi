@@ -1,113 +1,91 @@
-# Inisialisasi array 2D dengan kapasitas 10 baris dan 4 kolom (Nama, NIM, Kelas, Alamat)
-# Kita isi dengan None untuk mensimulasikan fixed-size array
-data = [[None for _ in range(4)] for _ in range(10)]
+MAX_CAPACITY = 10
+mahasiswa = [[None] * 3 for _ in range(MAX_CAPACITY)]
 count = 0
 
-def insert_data(pos):
-    global count
-    if count >= 10:
-        print("\n[!] Error: Array Penuh! Kapasitas maksimal adalah 10.")
-        return
-    if pos < 0 or pos > count:
-        print(f"\n[!] Error: Posisi tidak valid! Masukkan antara 0 sampai {count}.")
-        return
-
-    print(f"\n--- Input Data Mahasiswa (Posisi: {pos}) ---")
-    nama = input("Nama   : ")
-    nim = input("NIM    : ")
-    kelas = input("Kelas  : ")
-    alamat = input("Alamat : ")
-
-    # Shifting/Menggeser data ke bawah (kanan) untuk memberi ruang
-    for i in range(count, pos, -1):
-        data[i] = data[i-1][:] # Salin baris sebelumnya ke baris setelahnya
-    
-    # Isi data pada posisi yang ditentukan
-    data[pos] = [nama, nim, kelas, alamat]
-    count += 1
-    print("[+] Data berhasil ditambahkan.")
-
-def delete_data(pos):
-    global count
+def show_data():
+    print("\n--- DAFTAR MAHASISWA ---")
     if count == 0:
-        print("\n[!] Error: Array Kosong!")
-        return
-    if pos < 0 or pos >= count:
-        print("\n[!] Error: Posisi tidak valid!")
-        return
+        print("Array Kosong.")
+    else:
+        for i in range(count):
+            print(f"{i}. [NIM: {mahasiswa[i][0]}, Nama: {mahasiswa[i][1]}, Kelas: {mahasiswa[i][2]}]")
+    print("------------------------")
 
-    # Shifting/Menggeser data ke atas (kiri) untuk mengisi kekosongan
-    for i in range(pos, count - 1):
-        data[i] = data[i+1]
-    
-    # Reset baris terakhir yang sudah kosong
-    data[count-1] = [None, None, None, None]
+def insert_at_beginning():
+    global count
+    if count >= MAX_CAPACITY: return print("Penuh!")
+    nim, nama, kelas = input("NIM: "), input("Nama: "), input("Kelas: ")
+    for i in range(count, 0, -1): mahasiswa[i] = mahasiswa[i-1]
+    mahasiswa[0] = [nim, nama, kelas]
+    count += 1
+
+def insert_at_position():
+    global count
+    if count >= MAX_CAPACITY: return print("Penuh!")
+    pos = int(input(f"Posisi (0-{count}): "))
+    if 0 <= pos <= count:
+        nim, nama, kelas = input("NIM: "), input("Nama: "), input("Kelas: ")
+        for i in range(count, pos, -1): mahasiswa[i] = mahasiswa[i-1]
+        mahasiswa[pos] = [nim, nama, kelas]
+        count += 1
+    else: print("Posisi tidak valid")
+
+def insert_at_end():
+    global count
+    if count >= MAX_CAPACITY: return print("Penuh!")
+    mahasiswa[count] = [input("NIM: "), input("Nama: "), input("Kelas: ")]
+    count += 1
+
+def delete_from_beginning():
+    global count
+    if count == 0: return print("Kosong!")
+    for i in range(count - 1): mahasiswa[i] = mahasiswa[i+1]
     count -= 1
-    print("[-] Data pada posisi tersebut berhasil dihapus.")
+
+def delete_given_position():
+    global count
+    pos = int(input(f"Hapus posisi (0-{count-1}): "))
+    if 0 <= pos < count:
+        for i in range(pos, count - 1): mahasiswa[i] = mahasiswa[i+1]
+        count -= 1
+    else: print("Posisi tidak valid")
+
+def delete_from_end():
+    global count
+    if count > 0: count -= 1
+    else: print("Kosong!")
 
 def delete_first_occurrence():
-    target = input("\nMasukkan NIM yang ingin dihapus: ")
+    global count
+    target = input("NIM yang dihapus: ")
     for i in range(count):
-        if data[i][1] == target: # Kolom indeks 1 adalah NIM
-            delete_data(i)
+        if mahasiswa[i][0] == target:
+            for j in range(i, count - 1): mahasiswa[j] = mahasiswa[j+1]
+            count -= 1
+            print("Berhasil dihapus.")
             return
-    print("[!] NIM tidak ditemukan.")
+    print("Tidak ditemukan.")
 
-def show_data():
-    if count == 0:
-        print("\n[i] Data masih kosong.")
-        return
-    
-    print("\n" + "="*70)
-    print(f"{'No':<3} | {'NIM':<10} | {'Nama':<15} | {'Kls':<5} | {'Alamat':<15}")
-    print("-" * 70)
-    for i in range(count):
-        print(f"{i:<3} | {data[i][1]:<10} | {data[i][0]:<15} | {data[i][2]:<5} | {data[i][3]:<15}")
-    print("="*70)
-
-# Main Menu Loop
+# --- MAIN LOOP ---
 while True:
-    print(f"\n--- MENU ARRAY MAHASISWA (Data Terisi: {count}/10) ---")
-    print("1. Insert Beginning")
-    print("2. Insert at Given Position")
-    print("3. Insert End")
-    print("4. Delete from Beginning")
-    print("5. Delete Given Position")
-    print("6. Delete from End")
-    print("7. Delete First Occurrence (by NIM)")
-    print("8. Show Data")
-    print("9. Exit")
-    
-    pilihan = input("\nPilih menu (1-9): ")
-    
-    if pilihan == '1':
-        insert_data(0)
-    elif pilihan == '2':
-        try:
-            p = int(input(f"Masukkan posisi (0-{count}): "))
-            insert_data(p)
-        except ValueError:
-            print("[!] Harap masukkan angka untuk posisi.")
-    elif pilihan == '3':
-        insert_data(count)
-    elif pilihan == '4':
-        delete_data(0)
-    elif pilihan == '5':
-        try:
-            p = int(input(f"Masukkan posisi yang dihapus (0-{count-1}): "))
-            delete_data(p)
-        except ValueError:
-            print("[!] Harap masukkan angka.")
-    elif pilihan == '6':
-        delete_data(count - 1)
-    elif pilihan == '7':
-        delete_first_occurrence()
-    elif pilihan == '8':
-        show_data()
-    elif pilihan == '9':
-        print("Program selesai. Sampai jumpa!")
-        break
-    else:
-        print("[!] Pilihan tidak tersedia.")
+    print("\n=== Pilih Menu ===")
+    print("1.Insert at beginning")
+    print("2.Insert at given position") 
+    print("3.Insert at end") 
+    print("4.Delete from beginningn") 
+    print("5.Delete given position") 
+    print("6.Delete from end") 
+    print("7.Delete first occurence") 
+    print("8.Show Data")
+    print("9.Exit")
 
-        
+    menu = input("\nPilih: ")
+    if menu == "1": insert_at_beginning()
+    elif menu == "2": insert_at_position()
+    elif menu == "3": insert_at_end()
+    elif menu == "4": delete_from_beginning()
+    elif menu == "5": delete_given_position()
+    elif menu == "6": delete_from_end()
+    elif menu == "7": delete_first_occurrence()
+    elif menu == "8": show_data()
+    elif menu == "9": break
